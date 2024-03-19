@@ -33,6 +33,9 @@ class MaxAdView extends StatefulWidget {
   /// A string value representing the ad unit ID to load ads for.
   final String adUnitId;
 
+  /// A string value used to register a view on platform side
+  final String viewType;
+
   /// A string value representing the ad format to load ads for. Should be either [AdFormat.banner] or [AdFormat.mrec].
   final AdFormat adFormat;
 
@@ -67,6 +70,7 @@ class MaxAdView extends StatefulWidget {
     Key? key,
     required this.adUnitId,
     required this.adFormat,
+    this.viewType = 'adview',
     this.placement,
     this.customData,
     this.extraParameters,
@@ -137,7 +141,7 @@ class _MaxAdViewState extends State<MaxAdView> {
             child: OverflowBox(
               alignment: Alignment.bottomCenter,
               child: AndroidView(
-                viewType: "applovin_max/adview",
+                viewType: "applovin_max/${widget.viewType}",
                 creationParams: <String, dynamic>{
                   "ad_unit_id": widget.adUnitId,
                   "ad_format": widget.adFormat.value,
@@ -163,7 +167,7 @@ class _MaxAdViewState extends State<MaxAdView> {
             child: OverflowBox(
               alignment: Alignment.bottomCenter,
               child: UiKitView(
-                viewType: "applovin_max/adview",
+                viewType: "applovin_max/${widget.viewType}",
                 creationParams: <String, dynamic>{
                   "ad_unit_id": widget.adUnitId,
                   "ad_format": widget.adFormat.value,
