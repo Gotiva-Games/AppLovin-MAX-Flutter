@@ -184,11 +184,29 @@ class _MaxNativeAdViewState extends State<MaxNativeAdView> {
     _methodChannel!.setMethodCallHandler(_handleNativeMethodCall);
   }
 
+  bool _isOffsetValid(GlobalKey? key) {
+    final offset = (key?.currentContext?.findRenderObject() as RenderBox?)
+        ?.localToGlobal(Offset.zero);
+    return offset == null || (!offset.dx.isNaN && !offset.dy.isNaN);
+  }
+
   Future<dynamic> _handleNativeMethodCall(MethodCall call) async {
     var method = call.method;
     var arguments = call.arguments;
 
     if ("OnNativeAdLoadedEvent" == method) {
+      if (!_isOffsetValid(_iconViewKey) ||
+          !_isOffsetValid(_optionsViewKey) ||
+          !_isOffsetValid(_mediaViewKey) ||
+          !_isOffsetValid(_titleViewKey) ||
+          !_isOffsetValid(_advertiserViewKey) ||
+          !_isOffsetValid(_bodyViewKey) ||
+          !_isOffsetValid(_callToActionViewKey)) {
+        widget.listener?.onAdLoadFailedCallback(
+            'broken_layout', MaxError(1, 'RenderBoxes messed up', null));
+        return;
+      }
+
       MaxAd maxAd = AppLovinMAX.createAd(arguments);
       widget.listener?.onAdLoadedCallback(maxAd);
 
