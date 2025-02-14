@@ -12,12 +12,13 @@ const double _leaderHeight = 90;
 const double _mrecWidth = 300;
 const double _mrecHeight = 250;
 
-const String _viewType = "applovin_max/adview";
-
 /// Represents an AdView ad (Banner / MREC).
 class MaxAdView extends StatefulWidget {
   /// A string value representing the ad unit ID to load ads for.
   final String adUnitId;
+
+  /// A string value used to register a view on platform side
+  final String viewType;
 
   /// A string value representing the ad format to load ads for. Should be
   /// either [AdFormat.banner] or [AdFormat.mrec].
@@ -75,6 +76,7 @@ class MaxAdView extends StatefulWidget {
     required this.adUnitId,
     required this.adFormat,
     this.adViewId,
+    this.viewType = 'adview',
     this.placement,
     this.customData,
     this.extraParameters,
@@ -149,13 +151,13 @@ class _MaxAdViewState extends State<MaxAdView> {
         alignment: Alignment.bottomCenter,
         child: defaultTargetPlatform == TargetPlatform.android
             ? AndroidView(
-                viewType: _viewType,
+                viewType: "applovin_max/${widget.viewType}",
                 creationParams: _createParams(),
                 creationParamsCodec: const StandardMessageCodec(),
                 onPlatformViewCreated: _onMaxAdViewCreated,
               )
             : UiKitView(
-                viewType: _viewType,
+                viewType: "applovin_max/${widget.viewType}",
                 creationParams: _createParams(),
                 creationParamsCodec: const StandardMessageCodec(),
                 onPlatformViewCreated: _onMaxAdViewCreated,
@@ -180,7 +182,7 @@ class _MaxAdViewState extends State<MaxAdView> {
 
   /// Handles the creation of the platform-specific ad view.
   void _onMaxAdViewCreated(int id) {
-    _methodChannel = MethodChannel('${_viewType}_$id');
+    _methodChannel = MethodChannel('applovin_max/${widget.viewType}_$id');
     _methodChannel?.setMethodCallHandler(_handleMethodCall);
   }
 
