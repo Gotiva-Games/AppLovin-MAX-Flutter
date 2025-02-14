@@ -171,6 +171,12 @@ class _MaxNativeAdViewState extends State<MaxNativeAdView> {
     _methodChannel?.setMethodCallHandler(_handleNativeMethodCall);
   }
 
+  bool _isOffsetValid(GlobalKey? key) {
+    final offset = (key?.currentContext?.findRenderObject() as RenderBox?)
+        ?.localToGlobal(Offset.zero);
+    return offset == null || (!offset.dx.isNaN && !offset.dy.isNaN);
+  }
+
   Future<dynamic> _handleNativeMethodCall(MethodCall call) async {
     try {
       final String method = call.method;
@@ -181,8 +187,20 @@ class _MaxNativeAdViewState extends State<MaxNativeAdView> {
       }
 
       if ("OnNativeAdLoadedEvent" == method) {
-        MaxAd maxAd = AppLovinMAX.createMaxAd(arguments);
-        widget.listener?.onAdLoadedCallback(maxAd);
+         if (!_isOffsetValid(_iconViewKey) ||
+          !_isOffsetValid(_optionsViewKey) ||
+          !_isOffsetValid(_mediaViewKey) ||
+          !_isOffsetValid(_titleViewKey) ||
+          !_isOffsetValid(_advertiserViewKey) ||
+          !_isOffsetValid(_bodyViewKey) ||
+          !_isOffsetValid(_callToActionViewKey)) {
+        widget.listener?.onAdLoadFailedCallback(
+            'broken_layout', MaxError(ErrorCode.unspecified, 'RenderBoxes messed up', null, null));
+        return;
+      }
+
+      MaxAd maxAd = AppLovinMAX.createMaxAd(arguments);
+      widget.listener?.onAdLoadedCallback(maxAd);
 
         // Add or update all native ad asset views (e.g., title, body, icon) on the platform.
         _updateAllAssetViews();
